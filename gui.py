@@ -10,23 +10,22 @@ import threading
 def run_lemma(input_file_path, output_area):
     python_executable = sys.executable
     process = subprocess.Popen(
-        [python_executable, 'lemma.py', '--input_file_name', input_file_path, '--use_cache'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
+    [python_executable, "-u", "lemma.py", "--input_file_name", input_file_path, "--use_cache"],
+    stdout=subprocess.PIPE,
+    stderr=subprocess.PIPE,
+    text=True,
+    bufsize=1
+)
 
-    # This function will handle the live output reading
     def read_output(pipe, is_error=False):
         for line in iter(pipe.readline, ''):
             if is_error:
                 output_area.after(0, output_area.insert, tk.END, f"ERROR: {line}")
             else:
                 output_area.after(0, output_area.insert, tk.END, f"{line}")
-            output_area.after(0, output_area.yview, tk.END)  # Scroll to the bottom
+            output_area.after(0, output_area.yview, tk.END)
         pipe.close()
 
-    # Read stdout and stderr in separate threads to avoid blocking
     stdout_thread = threading.Thread(target=read_output, args=(process.stdout, False))
     stderr_thread = threading.Thread(target=read_output, args=(process.stderr, True))
 
@@ -50,7 +49,6 @@ def execute():
     output_area.insert(tk.END, f"Example file '{input_file_path}' found. Running lemma...\n")
     output_area.yview(tk.END)
     
-    # Run the lemma and handle live output
     threading.Thread(target=run_lemma, args=(input_file_path, output_area), daemon=True).start()
 
 def load_example():
@@ -60,15 +58,13 @@ def load_example():
             example_json = json.load(f)
 
         if isinstance(example_json, list) and len(example_json) > 0:
-            example_data = example_json[0]  # Get the first dictionary item
+            example_data = example_json[0]
 
             output_area.delete("1.0", tk.END)
-
-            # Get the image URL from the JSON and display the image
             image_url = example_data.get("image_url", "")
             if image_url:
                 try:
-                    image_path = os.path.join(os.getcwd(), image_url)  # Get the full path to the image
+                    image_path = os.path.join(os.getcwd(), image_url)
                     img = Image.open(image_path)
                     img.thumbnail((350, 350))
                     img_tk = ImageTk.PhotoImage(img)
