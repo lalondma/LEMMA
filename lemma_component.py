@@ -1,4 +1,5 @@
 import json
+import os
 from configs import prompts_root, imgbed_root, cache_root
 from utils import onlineImg_process, offlineImg_process, gpt_no_image
 
@@ -53,6 +54,10 @@ class LemmaComponent:
                         result = onlineImg_process(prompt=prompt, url=image_path,
                                                    max_tokens=self.max_tokens, temperature=self.temperature)
                     else:
+                        image_path = imgbed_root + image_path
+                        if not os.path.exists(image_path):
+                            print(f"Error: Image not found at {image_path}")
+                            return
                         result = offlineImg_process(prompt=prompt, image_path=image_path,
                                                     max_tokens=self.max_tokens, temperature=self.temperature)
                 elif self.model == 'gpt3.5':

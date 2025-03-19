@@ -141,7 +141,7 @@ for i, item in enumerate(data):
             retrieved_text = ""
 
         try:
-            visual_retrieved_text = visual_search(url, text)
+            visual_retrieved_text = visual_search(url, text, is_url=not args.use_offline_image)
         except Exception as e:
             perror(traceback.format_exc())
             visual_retrieved_text = ""

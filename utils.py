@@ -47,7 +47,9 @@ def onlineImg_process(prompt, url, model="gpt-4o", max_tokens=1000, temperature=
     return response.choices[0].message.content
 
 
-def offlineImg_process(prompt, image_path, model="gpt-4-vision-preview", max_tokens=1000, temperature=0.1):
+def offlineImg_process(prompt, image_path, model="gpt-4o", max_tokens=1000, temperature=0.1):
+
+    print("Processing offline image", image_path)
     # Encode function
     def encode_image(image_path):
         with open(image_path, "rb") as image_file:
@@ -56,37 +58,26 @@ def offlineImg_process(prompt, image_path, model="gpt-4-vision-preview", max_tok
     # Getting the base64 string
     base64_image = encode_image(image_path)
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {OPENAI_KEY}"
-    }
-
-    payload = {
-        "model": model,
-        "messages": [
+    response = client.chat.completions.create(
+        model=model,
+        messages=[
             {
                 "role": "user",
                 "content": [
-                    {
-                        "type": "text",
-                        "text": prompt
-                    },
+                    {"type": "text", "text": prompt},
                     {
                         "type": "image_url",
                         "image_url": {
-                            "url": f"data:image/jpeg;base64,{base64_image}"
-                        }
-                    }
-                ]
+                            "url": f"data:image/jpeg;base64,{base64_image}",
+                        },
+                    },
+                ],
             }
         ],
-        "max_tokens": max_tokens,
-        "temperature": temperature
-    }
-
-    response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
-
-    return eval(response.text)["choices"][0]["message"]["content"]
+        max_tokens=max_tokens,
+        temperature=temperature
+    )
+    return response.choices[0].message.content
 
 
 def gpt_no_image(prompt, model="gpt-3.5-turbo", max_tokens=1000, temperature=0.1):

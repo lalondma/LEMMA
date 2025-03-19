@@ -304,15 +304,18 @@ def visual_search(source, original_post, is_url=True, max_items = 5):
         search_button.click()       
     else:
         # upload the image
+        source = imgbed_root + source
         image_path=os.path.abspath(source) 
         pyautogui.typewrite(image_path)
         sleep(3)  
         pyautogui.press('enter')
         pyautogui.press('enter')
         sleep(5)  
-        driver.find_element_by_name('file').send_keys(r"D:\test\xuexi\test\14.png")
-        upload_button = driver.find_element(By.CSS_SELECTOR, "div.ZeVBtc>span")
-        upload_button.click()
+        pyautogui.typewrite(image_path)
+        sleep(1)
+        pyautogui.press('enter')
+        sleep(3)
+        pyautogui.press('enter')
     sleep(2)
 
     # image_serach result page
