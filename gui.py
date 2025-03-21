@@ -13,7 +13,7 @@ current_example = None
 def run_lemma(input_file_path, output_area):
     python_executable = sys.executable
     process = subprocess.Popen(
-        [python_executable, "-u", "lemma.py", "--input_file_name", input_file_path, "--use_cache", "--use_offline_image"],
+        [python_executable, "-u", "lemma.py", "--input_file_name", input_file_path, "--use_offline_image"],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True,
@@ -22,10 +22,13 @@ def run_lemma(input_file_path, output_area):
 
     def read_output(pipe, is_error=False):
         for line in iter(pipe.readline, ''):
-            if is_error:
-                output_area.after(0, output_area.insert, tk.END, f"ERROR: {line}")
+            if "Lemma Component" in line:
+                output_area.after(0, lambda: output_area.insert(tk.END, line, "bold"))
             else:
-                output_area.after(0, output_area.insert, tk.END, f"{line}")
+                if is_error:
+                    output_area.after(0, output_area.insert, tk.END, f"ERROR: {line}")
+                else:
+                    output_area.after(0, output_area.insert, tk.END, f"{line}")
             output_area.after(0, output_area.yview, tk.END)
         pipe.close()
 
@@ -79,9 +82,20 @@ def load_example(file_name):
                     output_area.insert(tk.END, f"Error loading image: {str(e)}\n")
             else:
                 output_area.insert(tk.END, "No image URL found in JSON\n")
+            
+            label_value = example_data.get("label", -1)
+            if label_value == 0:
+                status_icon = " ✔️"
+                text_color = "green"
+            elif label_value == 1:
+                status_icon = " ❌"
+                text_color = "red"
+            else:
+                status_icon = ""
+                text_color = "black"
 
             original_post = example_data.get("original_post", "No original_post found.")
-            original_post_label.config(text=f"Original Post: {original_post}")
+            original_post_label.config(text=f"Original Post: {original_post}{status_icon}", foreground=text_color)
             output_area.yview(tk.END)
         else:
             output_area.insert(tk.END, "Error: The JSON is empty or malformed.\n")
@@ -141,6 +155,7 @@ execute_button.grid(row=2, column=0, pady=10, columnspan=2)
 
 output_area = scrolledtext.ScrolledText(input_frame, wrap=tk.WORD, width=70, height=10, font=("Arial", 12))
 output_area.grid(row=3, column=0, padx=10, pady=15, columnspan=2)
+output_area.tag_configure("bold", font=("Arial", 12, "bold"))
 
 frame.grid_rowconfigure(0, weight=1)
 frame.grid_columnconfigure(0, weight=1)

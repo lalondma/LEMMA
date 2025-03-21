@@ -301,7 +301,7 @@ def visual_search(source, original_post, is_url=True, max_items = 5):
             source=imgbed_root+source
         driver.find_element(By.CSS_SELECTOR, "input.cB9M7").send_keys(source)
         search_button=driver.find_element(By.CSS_SELECTOR, "div.Qwbd3")
-        search_button.click()       
+        search_button.click()
     else:
         # upload the image
         source = imgbed_root + source
@@ -309,12 +309,9 @@ def visual_search(source, original_post, is_url=True, max_items = 5):
         pyautogui.typewrite(image_path)
         sleep(3)  
         pyautogui.press('enter')
-        pyautogui.press('enter')
         sleep(5)  
         pyautogui.typewrite(image_path)
         sleep(1)
-        pyautogui.press('enter')
-        sleep(3)
         pyautogui.press('enter')
     sleep(2)
 
